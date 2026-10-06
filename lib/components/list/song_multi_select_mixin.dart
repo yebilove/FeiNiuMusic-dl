@@ -8,6 +8,7 @@ import '../../app/services/song_match/song_match_service.dart';
 import '../../app/state/song_state.dart';
 import '../../pages/library/playlists_page.dart' show showAddToPlaylistDialog;
 import '../../app/router/app_router.dart';
+import '../common/song_delete_confirm.dart';
 import '../feedback/app_toast.dart';
 import 'multi_select_bottom_bar.dart';
 /// 全局多选活动计数：当前有多少个页面处于多选状态。
@@ -209,37 +210,15 @@ mixin SongMultiSelectMixin<T extends StatefulWidget>
     final songs = selectedSongs;
     if (songs.isEmpty) return;
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) {
-        final theme = Theme.of(dialogContext);
-        return AlertDialog(
-          icon: Icon(Icons.delete_forever_rounded, color: theme.colorScheme.error),
-          title: Text('删除 ${songs.length} 首歌曲？'),
-          content: SingleChildScrollView(
-            child: Text(
-              '将从 NAS 上【物理删除】以下歌曲的文件，删除后无法恢复。\n\n'
-              '${songs.take(20).map((s) => '· ${s.title}${s.artist.isEmpty ? '' : ' - ${s.artist}'}').join('\n')}'
-              '${songs.length > 20 ? '\n… 以及其余 ${songs.length - 20} 首' : ''}',
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('取消'),
-            ),
-            FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor: theme.colorScheme.error,
-              ),
-              onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: const Text('删除'),
-            ),
-          ],
-        );
-      },
+    final confirmed = await confirmSongDelete(
+      context,
+      count: songs.length,
+      lines: songs
+          .map((s) =>
+              '· ${s.title}${s.artist.isEmpty ? '' : ' - ${s.artist}'}')
+          .toList(),
     );
-    if (confirmed != true || !mounted) return;
+    if (!confirmed || !mounted) return;
 
     final removedIds = songs.map((s) => s.id).toList();
     final result =
