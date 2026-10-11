@@ -391,12 +391,12 @@ class _AppAppearanceSettingsPageState extends State<AppAppearanceSettingsPage> {
                             title: '车机界面缩放',
                             value: current * 100,
                             min: 80,
-                            max: 150,
-                            divisions: 14,
+                            max: 200,
+                            divisions: 24,
                             valueText:
                                 '${override == null ? '自动' : '自定义'} ${(current * 100).round()}%',
                             description:
-                                '推荐 ${(recommended * 100).round()}% · 调整侧边栏和主页，播放界面独立',
+                                '推荐 ${(recommended * 100).round()}% · 统一调整所有页面、侧边栏和弹窗',
                             onChanged: (next) {
                               AppLayoutSettings.setTvUiScaleOverride(
                                 next / 100,
